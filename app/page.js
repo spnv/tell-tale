@@ -8,6 +8,10 @@ const sounds = [
   { id: "snow-step", label: "Snow Step", file: "/sounds/snow-step.mp3", emoji: "👣" },
   { id: "thinking", label: "Thinking", file: "/sounds/thinking.mp3", emoji: "🤔" },
   { id: "trying", label: "Trying", file: "/sounds/trying.mp3", emoji: "💪" },
+  { id: "forest", label: "Forest", file: "/sounds/forest.mp3", emoji: "🌲" },
+  { id: "morning-bird", label: "Morning Bird", file: "/sounds/morning-bird.mp3", emoji: "🐦" },
+  { id: "morning-bird-2", label: "Morning Bird 2", file: "/sounds/morning-bird-2.mp3", emoji: "🐤" },
+  { id: "snoring", label: "Snoring", file: "/sounds/snoring.mp3", emoji: "😴" },
 ];
 
 export default function Soundboard() {
