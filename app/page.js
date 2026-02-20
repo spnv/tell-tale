@@ -1,65 +1,87 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useRef, useState } from "react";
+
+const sounds = [
+  { id: "blizzard", label: "Blizzard", file: "/sounds/blizzard.mp3", emoji: "🌨️" },
+  { id: "panic", label: "Panic", file: "/sounds/panic.mp3", emoji: "😱" },
+  { id: "snow-step", label: "Snow Step", file: "/sounds/snow-step.mp3", emoji: "👣" },
+  { id: "thinking", label: "Thinking", file: "/sounds/thinking.mp3", emoji: "🤔" },
+  { id: "trying", label: "Trying", file: "/sounds/trying.mp3", emoji: "💪" },
+];
+
+export default function Soundboard() {
+  const [playing, setPlaying] = useState(new Set());
+  const audioRefs = useRef({});
+
+  function stop(id) {
+    const audio = audioRefs.current[id];
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    setPlaying((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }
+
+  function play(sound) {
+    const audio = audioRefs.current[sound.id];
+    if (!audio) return;
+
+    if (playing.has(sound.id)) {
+      stop(sound.id);
+      return;
+    }
+
+    setPlaying((prev) => new Set(prev).add(sound.id));
+    audio.currentTime = 0;
+    audio.play();
+    audio.onended = () => stop(sound.id);
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-10 px-6 py-16">
+      <h1 className="text-2xl sm:text-4xl font-bold text-white tracking-tight">
+        Tell-Tale Soundboard
+      </h1>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 w-full max-w-xl">
+        {sounds.map((sound) => {
+          const isPlaying = playing.has(sound.id);
+          return (
+            <button
+              key={sound.id}
+              onClick={() => play(sound)}
+              className={`
+                flex flex-col items-center justify-center gap-3 rounded-2xl
+                h-36 text-white font-semibold text-lg transition-all duration-150
+                border-2 cursor-pointer select-none last:col-span-2 sm:last:col-span-1
+                ${
+                  isPlaying
+                    ? "bg-indigo-600 border-indigo-400 scale-95 shadow-lg shadow-indigo-900"
+                    : "bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-500 active:scale-95"
+                }
+              `}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+              <span className="text-4xl">{sound.emoji}</span>
+              <span>{sound.label}</span>
+              {isPlaying && (
+                <span className="text-xs font-normal text-indigo-200 animate-pulse">
+                  playing...
+                </span>
+              )}
+              <audio
+                ref={(el) => (audioRefs.current[sound.id] = el)}
+                src={sound.file}
+                preload="auto"
+              />
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
